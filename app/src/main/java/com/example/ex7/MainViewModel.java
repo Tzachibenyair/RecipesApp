@@ -16,11 +16,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class MainViewModel extends AndroidViewModel {
     MutableLiveData<ArrayList<Recipe>> recipeLiveData;
     MutableLiveData<Integer> positionRecipe;
     MutableLiveData<ArrayList<Recipe>> favoriteRecipes;
+    MutableLiveData<Set<Integer>> favoritePositions;
+    Set<Integer> favoritePositionSet;
     ArrayList<Recipe> recipeList;
     ArrayList<Recipe> favoriteList;
     Integer position = new Integer(-1);
@@ -34,6 +37,7 @@ public class MainViewModel extends AndroidViewModel {
         recipeLiveData = new MutableLiveData<>();
         positionRecipe = new MutableLiveData<>();
         favoriteRecipes = new MutableLiveData<>();
+        favoritePositions = new MutableLiveData<>();
         context = application.getBaseContext();
         init(application.getBaseContext());
     }
@@ -51,12 +55,13 @@ public class MainViewModel extends AndroidViewModel {
 //        this.removeStatus =  getPrefs.getBoolean("checkboxPref",false);
         recipeList = RecipeXMLParser.parseRecipes(context);
         originRecipe = RecipeXMLParser.parseRecipes(context);
+        favoriteList = new ArrayList<>();
         if(removeStatus == false) {
             recipeLiveData.setValue(recipeList);
             positionRecipe.setValue(position);
             saveRecipes();
         }else{
-            loadCountries();
+            loadRecipes();
         }
     }
 
@@ -66,6 +71,30 @@ public class MainViewModel extends AndroidViewModel {
         //TODO: SAVE DATA
         favoriteRecipes.setValue(favoriteList);
     }
+
+    public void removeFavoriteRecipe(int position)
+    {
+        favoriteList.remove(originRecipe.get(position));
+        //TODO: SAVE DATA
+        favoriteRecipes.setValue(favoriteList);
+    }
+
+    public boolean  isFavoriteRecipe(int position)
+    {
+        return favoriteList.contains(originRecipe.get(position));
+    }
+
+    public void setFavoritePosition(Set<Integer> favoritePosition)
+    {
+        favoritePositionSet = favoritePosition;
+        favoritePositions.setValue(favoritePositionSet);
+    }
+
+    public MutableLiveData<Set<Integer>> getFavoritePositionsLiveData()
+    {
+        return favoritePositions;
+    }
+
 
     public int getPosition(){
         return position;
@@ -85,7 +114,7 @@ public class MainViewModel extends AndroidViewModel {
         this.removeStatus = removeStatus;
     }
 
-    private void loadCountries() {
+    private void loadRecipes() {
 
         FileInputStream fis = null;
         ArrayList<Recipe> tempRecipe = new ArrayList<>();
@@ -110,22 +139,6 @@ public class MainViewModel extends AndroidViewModel {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
-//        ArrayList<Recipe> tempCountry = new ArrayList<>();
-//
-//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-//        for(Country country : countryList) {
-//            String country_name = sharedPref.getString(country.getName(),null);
-//            if(country_name != null){
-//                tempCountry.add(country);
-//            }
-//        }
-//        countryList = tempCountry;
-//        countryLiveData.setValue(countryList);
-//        positionCountry.setValue(position);
 
 
     }
@@ -175,4 +188,7 @@ public class MainViewModel extends AndroidViewModel {
 
 
     }
+
+
+
 }

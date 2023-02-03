@@ -2,22 +2,22 @@ package com.example.ex7;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
+
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -45,45 +45,56 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
             recipe_cookingTime.setText(recipe.getCooking_time());
             int id = context.getResources().getIdentifier(recipeList.get(position).getName(), "drawable", context.getPackageName());
             recipe_image.setImageResource(id);
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    onRecipeLongClick.onRecipeLongClick(position, selectedPosition);
-                    notifyDataSetChanged();
-                    return false;
-                }
-            });
+            id = context.getResources().getIdentifier("star", "drawable", context.getPackageName());
+            star.setImageResource(id);
+            star.setVisibility(View.INVISIBLE);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            itemView.setOnTouchListener(new OnSwipeTouchListener(context) {
+
+                public void onSwipeRight() {
+                    favoritePositions.add(position);
+                    onRecipeListener.onSwipe(position,true, favoritePositions);
+                    notifyDataSetChanged();
+                }
+                public void onSwipeLeft() {
+                    favoritePositions.remove(position);
+                    onRecipeListener.onSwipe(position,false, favoritePositions);
+                    notifyDataSetChanged();
+                }
+
+                public void onClick()
+                {
                     onRecipeLongClick.onClick(position);
                     notifyDataSetChanged();
-
                 }
+
+                public void onLongClick()
+                {
+                    favoritePositions.remove(position);
+                    onRecipeLongClick.onRecipeLongClick(position, selectedPosition, favoritePositions);
+                    notifyDataSetChanged();
+                }
+
             });
-//TODO: UNDERSTAND WHAT IS THE ISSUE WITH THIS
-//                itemView.setOnTouchListener(new OnSwipeTouchListener(context) {
-//                    public void onSwipeRight() {
-//                        itemView.setBackgroundColor(Color.GRAY);
-//                        Toast.makeText(context, "right", Toast.LENGTH_SHORT).show();
-//                        onRecipeListener.onSwipe(position);
-//                        notifyDataSetChanged();
-//                    }
-//                    public void onSwipeLeft() {
-//                        Toast.makeText(context, "left", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                });
+
+            if (favoritePositions.contains(position))
+            {
+                star.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                star.setVisibility(View.INVISIBLE);
+            }
+
         }
 
 
     }
 
     public interface OnRecipeListener {
-        void onRecipeLongClick(int position, int currentPosition);
+        void onRecipeLongClick(int position, int currentPosition, Set<Integer> favorites);
         void onClick(int position);
-        void onSwipe(int position);
+        boolean onSwipe(int position,boolean toAdd, Set<Integer> favorites);
         int getPosition();
     }
 
@@ -92,6 +103,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
     private List<Recipe> recipeList;
     private OnRecipeListener onRecipeListener;
     int selectedPosition=-1;
+    Set<Integer> favoritePositions = new HashSet<>();
     private Context context;
 
     public RecipeAdapter(Context context)
@@ -120,7 +132,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
         holder.fillData(position);
         selectedPosition = onRecipeListener.getPosition();
         holder.itemView.setBackgroundColor(selectedPosition == position ? Color.WHITE : Color.TRANSPARENT);
-
     }
 
     @Override
@@ -130,6 +141,12 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
     public void setRecipeList(List<Recipe> recipeList){
         this.recipeList = recipeList;
+        notifyDataSetChanged();
+    }
+
+    public void setFavoritePosition(Set<Integer> favoritePosition)
+    {
+        this.favoritePositions = favoritePosition;
         notifyDataSetChanged();
     }
 

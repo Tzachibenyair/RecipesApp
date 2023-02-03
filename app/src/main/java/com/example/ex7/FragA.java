@@ -14,8 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Set;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link FragA#newInstance} factory method to
@@ -67,11 +70,23 @@ public class FragA extends Fragment implements RecipeAdapter.OnRecipeListener {
                 adapter.setRecipeList(recipes);
             }
         });
+        model.getFavoritePositionsLiveData().observe(getActivity(), new Observer<Set<Integer>>() {
+            @Override
+            public void onChanged(Set<Integer> favoritePosition) {
+                adapter.setFavoritePosition(favoritePosition);
+            }
+        });
     }
 //fagA responsible to update the livedata with his modelView
     @Override
-    public void onRecipeLongClick(int position, int currentPosition) {
+    public void onRecipeLongClick(int position, int currentPosition, Set<Integer> favoritePosition) {
         model.remove(position);
+        model.setFavoritePosition(favoritePosition);
+        if(model.isFavoriteRecipe(position))
+        {
+            Toast.makeText(getContext(), "remove from favorite dishes", Toast.LENGTH_SHORT).show();
+            model.removeFavoriteRecipe(position);
+        }
         if(position == currentPosition)
             model.setPosition(-1);
         if(position < currentPosition)
@@ -85,8 +100,27 @@ public class FragA extends Fragment implements RecipeAdapter.OnRecipeListener {
     }
 
     @Override
-    public void onSwipe(int position) {
-        model.addFavoriteRecipe(position);
+    public boolean onSwipe(int position, boolean  toAdd, Set<Integer> favoritePosition)
+    {
+        model.setFavoritePosition(favoritePosition);
+        if(toAdd)
+        {
+            if(!model.isFavoriteRecipe(position))
+            {
+                Toast.makeText(getContext(), "add to favorite dishes", Toast.LENGTH_SHORT).show();
+                model.addFavoriteRecipe(position);
+            }
+        }
+        else
+        {
+            if(model.isFavoriteRecipe(position))
+            {
+                Toast.makeText(getContext(), "remove from favorite dishes", Toast.LENGTH_SHORT).show();
+                model.removeFavoriteRecipe(position);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
