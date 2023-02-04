@@ -16,7 +16,7 @@
   <recipe>
     <name>chicken</name>
     <ingredients>Whole chicken,Salt,Pepper,Olive oil,Lemon</ingredients>
-    <cooking_time>1 hour 30 minutes</cooking_time>
+    <cooking_time>90 minutes</cooking_time>
     <dish_type>Main dish</dish_type>
     <cooking_steps>
       Preheat oven to 400°F (200°C).
@@ -48,7 +48,7 @@
   <ingredients>
     2 cups of sushi rice,4 sheets of nori (dried seaweed),1 avocado,1/2 lb of crab meat or imitation crab meat,1/2 small cucumber
   </ingredients>
-  <cooking_time>1 hour</cooking_time>
+  <cooking_time>60 minutes</cooking_time>
   <dish_type>Sushi</dish_type>
   <cooking_steps>
     Prepare the sushi rice by cooking it in a pot with 2 1/2 cups of water according to package instructions. Then let it cool to room temperature.
@@ -97,7 +97,7 @@
   <ingredients>
     4 salmon fillets,2 tbsp of olive oil,salt, black pepper,1 lemon
   </ingredients>
-  <cooking_time>10 minutes</cooking_time>
+  <cooking_time>30 minutes</cooking_time>
   <dish_type>Main dish</dish_type>
   <cooking_steps>
     Heat a large non-stick skillet over medium-high heat.
@@ -113,7 +113,7 @@
   <ingredients>
     all-purpose flour,baking powder,unsalted butter,granulated sugar,eggs,vanilla extract,whole milk
   </ingredients>
-  <cooking_time>35-40 minutes</cooking_time>
+  <cooking_time>40 minutes</cooking_time>
   <dish_type>Dessert</dish_type>
   <cooking_steps>
     Preheat the oven to 350°F (175°C). Grease and flour two 9-inch round cake pans.
@@ -129,7 +129,7 @@
   <ingredients>
     <ingredient>whole milk,vanilla ice cream,chocolate syrup,whipped cream (optional)</ingredient>
   </ingredients>
-  <cooking_time>5 minutes</cooking_time>
+  <cooking_time>20 minutes</cooking_time>
   <dish_type>Beverage</dish_type>
   <cooking_steps>
     Combine the milk, vanilla ice cream, and chocolate syrup in a blender.
@@ -143,7 +143,7 @@
   <ingredients>
     romaine lettuce, cherry tomatoes,sliced red onion, sliced cucumber
   </ingredients>
-  <cooking_time>15 minutes</cooking_time>
+  <cooking_time>20 minutes</cooking_time>
   <dish_type>Side Dish</dish_type>
   <cooking_steps>
     In a large bowl, combine the lettuce, cherry tomatoes, red onion, cucumber

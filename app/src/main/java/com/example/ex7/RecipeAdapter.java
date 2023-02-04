@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,12 +71,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
                 public void onLongClick()
                 {
-                    favoritePositions.remove(position);
+                    updatePositions(position);
                     onRecipeLongClick.onRecipeLongClick(position, selectedPosition, favoritePositions);
                     notifyDataSetChanged();
                 }
 
             });
+
+
 
             if (favoritePositions.contains(position))
             {
@@ -88,6 +91,28 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
         }
 
+
+    }
+
+    private void updatePositions(int position)
+    {
+        List<Integer> positionToChange = new ArrayList<>();
+        if (favoritePositions.contains(position))
+        {
+            favoritePositions.remove(position);
+        }
+        for (int pos : favoritePositions)
+        {
+            if (position < pos)
+            {
+                positionToChange.add(pos);
+            }
+        }
+        for (int pos : positionToChange)
+        {
+            favoritePositions.remove(pos);
+            favoritePositions.add(pos-1);
+        }
 
     }
 

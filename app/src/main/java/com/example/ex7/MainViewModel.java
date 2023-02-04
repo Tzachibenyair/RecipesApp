@@ -16,18 +16,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 public class MainViewModel extends AndroidViewModel {
     MutableLiveData<ArrayList<Recipe>> recipeLiveData;
-    MutableLiveData<Integer> positionRecipe;
-    MutableLiveData<ArrayList<Recipe>> favoriteRecipes;
-    MutableLiveData<Set<Integer>> favoritePositions;
-    Set<Integer> favoritePositionSet;
+    MutableLiveData<Integer> positionRecipeLiveData;
+    MutableLiveData<ArrayList<Recipe>> favoriteRecipesLiveData;
+    MutableLiveData<Set<Integer>> favoritePositionsLiveData;
+    Set<Integer> favoritePositionSet = new HashSet<>();
     ArrayList<Recipe> recipeList;
     ArrayList<Recipe> favoriteList;
     Integer position = new Integer(-1);
-    boolean removeStatus = false; //add false here!!!!
+    boolean removeStatus; //add false here!!!!
     private static final String FILE_NAME = "recipes.txt";
     Context context;
     ArrayList<Recipe> originRecipe;
@@ -35,9 +36,9 @@ public class MainViewModel extends AndroidViewModel {
     public MainViewModel(@NonNull Application application) {
         super(application);
         recipeLiveData = new MutableLiveData<>();
-        positionRecipe = new MutableLiveData<>();
-        favoriteRecipes = new MutableLiveData<>();
-        favoritePositions = new MutableLiveData<>();
+        positionRecipeLiveData = new MutableLiveData<>();
+        favoriteRecipesLiveData = new MutableLiveData<>();
+        favoritePositionsLiveData = new MutableLiveData<>();
         context = application.getBaseContext();
         init(application.getBaseContext());
     }
@@ -47,52 +48,62 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public MutableLiveData<Integer> getPositionMutableLiveData(){
-        return positionRecipe;
+        return positionRecipeLiveData;
+    }
+
+    public int getCookingTimeForCurrentRecipe()
+    {
+        String str = recipeList.get(position).getCooking_time();
+        str = str.replaceAll("\\D+","");
+        return Integer.parseInt(str);
     }
 
     public void init(Context context){
         SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getApplication());
-//        this.removeStatus =  getPrefs.getBoolean("checkboxPref",false);
+        this.removeStatus =  getPrefs.getBoolean("checkboxPref",false);
         recipeList = RecipeXMLParser.parseRecipes(context);
         originRecipe = RecipeXMLParser.parseRecipes(context);
         favoriteList = new ArrayList<>();
         if(removeStatus == false) {
             recipeLiveData.setValue(recipeList);
-            positionRecipe.setValue(position);
-            saveRecipes();
+            positionRecipeLiveData.setValue(position);
+            saveRecipes(null);
         }else{
-            loadRecipes();
+            loadCountries();
         }
     }
 
     public void addFavoriteRecipe(int position)
     {
-        favoriteList.add(originRecipe.get(position));
-        //TODO: SAVE DATA
-        favoriteRecipes.setValue(favoriteList);
+        favoriteList.add(recipeList.get(position));
+        saveRecipes(null);
+        favoriteRecipesLiveData.setValue(favoriteList);
     }
 
     public void removeFavoriteRecipe(int position)
     {
-        favoriteList.remove(originRecipe.get(position));
-        //TODO: SAVE DATA
-        favoriteRecipes.setValue(favoriteList);
+        String name = recipeList.get(position).getName();
+        favoriteList.remove(recipeList.get(position));
+        saveRecipes(name);
+        favoriteRecipesLiveData.setValue(favoriteList);
     }
 
     public boolean  isFavoriteRecipe(int position)
     {
-        return favoriteList.contains(originRecipe.get(position));
+        if (recipeList.size()-1 < position)
+            return false;
+        return favoriteList.contains(recipeList.get(position));
     }
 
     public void setFavoritePosition(Set<Integer> favoritePosition)
     {
         favoritePositionSet = favoritePosition;
-        favoritePositions.setValue(favoritePositionSet);
+        favoritePositionsLiveData.setValue(favoritePositionSet);
     }
 
     public MutableLiveData<Set<Integer>> getFavoritePositionsLiveData()
     {
-        return favoritePositions;
+        return favoritePositionsLiveData;
     }
 
 
@@ -101,21 +112,22 @@ public class MainViewModel extends AndroidViewModel {
     }
     public void setPosition(int position){
         this.position = position;
-        positionRecipe.setValue(position);
+        positionRecipeLiveData.setValue(position);
     }
 
     public void remove(int position) {
         recipeList.remove(position);
-        saveRecipes();
+        saveRecipes(null);
         recipeLiveData.setValue(recipeList);
     }
+
 
     public void setCheckBox(boolean removeStatus) {
         this.removeStatus = removeStatus;
     }
 
-    private void loadRecipes() {
-
+    private void loadCountries() {
+//load the modified recipes list
         FileInputStream fis = null;
         ArrayList<Recipe> tempRecipe = new ArrayList<>();
         try {
@@ -133,7 +145,7 @@ public class MainViewModel extends AndroidViewModel {
             }
             recipeList = tempRecipe;
             recipeLiveData.setValue(recipeList);
-            positionRecipe.setValue(position);
+            positionRecipeLiveData.setValue(position);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -141,14 +153,31 @@ public class MainViewModel extends AndroidViewModel {
         }
 
 
+
+//load the favorite recipes
+        ArrayList<Recipe> tempFavorite = new ArrayList<>();
+        Set<Integer> tempFavoritePositions = new HashSet<>();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        for(int i=0; i < recipeList.size(); i++)
+        {
+            String recipe_name = sharedPref.getString(recipeList.get(i).getName(),null);
+            if(recipe_name != null){
+                tempFavorite.add(recipeList.get(i));
+                tempFavoritePositions.add(i);
+            }
+        }
+        favoriteList = tempFavorite;
+        favoritePositionSet = tempFavoritePositions;
+        favoriteRecipesLiveData.setValue(favoriteList);
+        favoritePositionsLiveData.setValue(favoritePositionSet);
     }
 
-    private void saveRecipes() {
+    private void saveRecipes(String name) {
 
         FileOutputStream fos = null;
         try {
             fos = getApplication().openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
-            for(Recipe recipe : recipeList){
+            for (Recipe recipe : recipeList) {
                 String recipe_name = recipe.getName() + "\n";
                 fos.write(recipe_name.getBytes());
             }
@@ -156,7 +185,7 @@ public class MainViewModel extends AndroidViewModel {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (fos != null) {
                 try {
                     fos.close();
@@ -167,14 +196,41 @@ public class MainViewModel extends AndroidViewModel {
         }
 
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        if(name != null)
+        {
+            editor.remove(name).commit();
+        }
+        boolean search;
+        for (Recipe recipe : recipeList)
+        {
+            search = false;
+            for (Recipe recipe1 : favoriteList)
+            {
+                if (recipe.getName().equals(recipe1.getName()))
+                {
+                    search = true;
+                }
+            }
+            if(search == true)
+                editor.putString(recipe.getName(), recipe.getName());
+            else
+                editor.putString(recipe.getName(), null);
+        }
+        editor.apply();
+    }
 
+
+//     for (Recipe recipe : favoriteList) {
+//        editor.putString(recipe.getName(), recipe.getName());
+//    }
+//        editor.apply();
 
 //        boolean search;
-//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-//        SharedPreferences.Editor editor = sharedPref.edit();
-//        for(Country country : originCountry) {
+//        for(Recipe recipe : originRecipe) {
 //            search = false;
-//            for(Country country1 : countryList){
+//            for(Recipe recipe1 : recipeList){
 //                if(country.getName().equals(country1.getName())){
 //                    search = true;
 //                }
@@ -187,7 +243,7 @@ public class MainViewModel extends AndroidViewModel {
 //        editor.apply();
 
 
-    }
+
 
 
 
