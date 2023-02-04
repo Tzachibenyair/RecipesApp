@@ -53,6 +53,8 @@ public class MainViewModel extends AndroidViewModel {
 
     public int getCookingTimeForCurrentRecipe()
     {
+        if (position == -1)
+            return -1;
         String str = recipeList.get(position).getCooking_time();
         str = str.replaceAll("\\D+","");
         return Integer.parseInt(str);
