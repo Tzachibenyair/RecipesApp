@@ -55,9 +55,6 @@ public class FragA extends Fragment implements RecipeAdapter.OnRecipeListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-
         RecyclerView rvRecipe = (RecyclerView) view.findViewById(R.id.rvRecipe);
         RecipeAdapter adapter = new RecipeAdapter(getContext());
         adapter.setInterface(this);

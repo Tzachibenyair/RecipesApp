@@ -11,7 +11,7 @@
         android:layout_width="372dp"
         android:layout_height="580dp"
 
-        android:background="@color/teal_700"
+        android:background="#EDD500"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </FrameLayout>

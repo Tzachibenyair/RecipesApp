@@ -5,6 +5,6 @@
 
     <CheckBoxPreference
         app:key="checkboxPref"
-        app:title="save favorite recipes"/>
+        app:title="Reset Original State"/>
 
 </PreferenceScreen>

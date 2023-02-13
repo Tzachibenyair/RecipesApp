@@ -71,7 +71,7 @@ public class MainViewModel extends AndroidViewModel {
             positionRecipeLiveData.setValue(position);
             saveRecipes(null);
         }else{
-            loadCountries();
+            loadData();
         }
     }
 
@@ -128,7 +128,7 @@ public class MainViewModel extends AndroidViewModel {
         this.removeStatus = removeStatus;
     }
 
-    private void loadCountries() {
+    private void loadData() {
 //load the modified recipes list
         FileInputStream fis = null;
         ArrayList<Recipe> tempRecipe = new ArrayList<>();

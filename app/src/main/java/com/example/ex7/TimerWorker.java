@@ -77,8 +77,4 @@ public class TimerWorker extends Worker {
         return Result.success(outputData);
     }
 
-//    public boolean checkIfWorking()
-//    {
-//        return isWorking;
-//    }
 }
